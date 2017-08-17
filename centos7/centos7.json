@@ -1,0 +1,39 @@
+{
+  "builders": [{
+    "type": "amazon-ebs",
+    "vpc_id": "vpc-deadbeef",
+    "subnet_id": "subnet-deadbeef",
+    "region": "us-west-2",
+    "source_ami": "ami-0c2aba6c",
+    "instance_type": "t2.micro",
+    "ssh_username": "centos",
+    "ami_name": "centos7-base-{{timestamp}}",
+    "ssh_pty" : true,
+    "ami_block_device_mappings": [ {
+        "device_name": "/dev/sda1",
+        "volume_size": 64,
+        "delete_on_termination": true,
+        "volume_type": "gp2"
+    } ],
+    "launch_block_device_mappings": [ {
+        "device_name": "/dev/sda1",
+        "volume_size": 64,
+        "delete_on_termination": true,
+        "volume_type": "gp2"
+    } ]
+  }],
+  "provisioners": [{
+    "type": "shell",
+    "inline": [
+      "sleep 30",
+      "#### System udpates and install puppet ####",
+      "sudo yum update -y",
+      "sudo yum install -y epel-release",
+      "sudo rpm -ivh https://yum.puppetlabs.com/puppetlabs-release-el-7.noarch.rpm",
+      "sudo yum clean all",
+
+      "#### Preserve hostname between reboots ####",
+      "sudo chmod 777 /etc/cloud/cloud.cfg && sudo echo 'preserve_hostname: true' >> /etc/cloud/cloud.cfg"
+    ]
+    }]
+}
